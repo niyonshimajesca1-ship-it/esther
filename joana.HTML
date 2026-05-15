@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GS MWENDO TSS Attendance System</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+<style>
+body{font-family:Arial,sans-serif;}
+.section{display:none;}
+.section.active{display:block;}
+</style>
+</head>
+
+<body class="bg-green-100">
+
+<header class="bg-green-900 text-white p-5 shadow">
+<div class="flex justify-between items-center">
+
+<button onclick="logout()" id="headerLogout"
+class="bg-red-700 text-white px-4 py-2 rounded hidden">
+Logout
+</button>
+
+<div class="text-center flex-1">
+<h1 class="text-4xl font-bold">GS MWENDO TSS</h1>
+<p class="mt-2">STUDENT ATTENDANCE SYSTEM</p>
+</div>
+
+<div style="width:100px;"></div>
+</div>
+</header>
+
+<div class="max-w-7xl mx-auto p-6">
+
+<!-- LOGIN -->
+<div id="loginPage" class="bg-white p-6 rounded shadow max-w-md mx-auto mt-10">
+<h2 class="text-2xl font-bold mb-5 text-center text-green-900">Login</h2>
+
+<select id="role" class="border p-3 w-full mb-3 rounded">
+<option value="">Select Role</option>
+<option value="admin">Admin</option>
+<option value="dos">DOS</option>
+<option value="teacher">Teacher</option>
+</select>
+
+<input id="username" placeholder="Username" class="border p-3 w-full mb-3 rounded">
+<input id="password" type="password" placeholder="Password" class="border p-3 w-full mb-3 rounded">
+
+<button onclick="login()" class="bg-green-800 text-white w-full p-3 rounded">
+<i class="fa fa-sign-in-alt"></i> Login
+</button>
+
+<p id="msg" class="text-center text-red-600 mt-3 font-bold"></p>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+
+<nav class="bg-white p-4 rounded shadow flex gap-3 flex-wrap mb-6">
+<button onclick="show('dashboard')" class="bg-green-700 text-white px-4 py-2 rounded">Dashboard</button>
+<button onclick="show('students')" class="bg-green-700 text-white px-4 py-2 rounded">Students</button>
+<button onclick="show('attendance')" class="bg-green-700 text-white px-4 py-2 rounded">Attendance</button>
+<button onclick="show('report')" class="bg-green-700 text-white px-4 py-2 rounded">Reports</button>
+<button onclick="show('contact')" class="bg-green-700 text-white px-4 py-2 rounded">Contact</button>
+<button onclick="show('about')" class="bg-green-700 text-white px-4 py-2 rounded">About</button>
+<button onclick="window.print()" class="bg-green-700 text-white px-4 py-2 rounded">Print</button>
+</nav>
+
+<div class="flex justify-between mb-6">
+<button onclick="goBack()" class="bg-red-600 text-white px-4 py-2 rounded">
+<i class="fa fa-arrow-left"></i> Back
+</button>
+
+<button onclick="goNext()" class="bg-green-600 text-white px-4 py-2 rounded">
+Next <i class="fa fa-arrow-right"></i>
+</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="section active">
+<h2 class="text-3xl font-bold mb-6 text-green-900">Dashboard</h2>
+
+<div class="grid md:grid-cols-3 gap-6">
+<div class="bg-green-700 text-white p-6 rounded shadow">
+<h3 class="text-xl font-bold">Total Students</h3>
+<p id="total" class="text-5xl mt-3">0</p>
+</div>
+
+<div class="bg-green-700 text-white p-6 rounded shadow">
+<h3 class="text-xl font-bold">Classes</h3>
+<p id="totalClasses" class="text-5xl mt-3">0</p>
+</div>
+
+<div class="bg-green-700 text-white p-6 rounded shadow">
+<h3 class="text-xl font-bold">Present Today</h3>
+<p id="attendanceToday" class="text-5xl mt-3">0</p>
+</div>
+</div>
+
+<div class="bg-white p-5 rounded shadow mt-8">
+<h3 class="text-2xl font-bold mb-4">Class Overview</h3>
+<table class="w-full border">
+<thead class="bg-green-200">
+<tr>
+<th class="border p-3">Class</th>
+<th class="border p-3">Students</th>
+</tr>
+</thead>
+<tbody id="classTable"></tbody>
+</table>
+</div>
+</div>
+
+<!-- STUDENTS -->
+<div id="students" class="section">
+<h2 class="text-2xl font-bold mb-5">Students Management</h2>
+
+<div class="bg-white p-5 rounded shadow mb-5">
+<div class="grid md:grid-cols-3 gap-3">
+
+<select id="studentClass" class="border p-3 rounded">
+<option value="">Select Class</option>
+<option>S1A</option>
+<option>S1B</option>
+<option>S2A</option>
+<option>S2B</option>
+<option>S3A</option>
+<option>S3B</option>
+<option>L3</option>
+<option>L4</option>
+<option>L5</option>
+</select>
+
+<input id="studentName" placeholder="Student Name" class="border p-3 rounded">
+
+<button onclick="addStudent()" class="bg-green-700 text-white rounded p-3">
+Add Student
+</button>
+</div>
+</div>
+
+<div class="bg-white p-5 rounded shadow">
+<h3 class="text-xl font-bold mb-4">Students By Class</h3>
+
+<select id="viewClass" onchange="renderStudents()" class="border p-3 rounded mb-4">
+<option value="">Choose Class</option>
+<option>S1A</option>
+<option>S1B</option>
+<option>S2A</option>
+<option>S2B</option>
+<option>S3A</option>
+<option>S3B</option>
+<option>L3</option>
+<option>L4</option>
+<option>L5</option>
+</select>
+
+<table class="w-full">
+<thead class="bg-green-900 text-white">
+<tr>
+<th class="p-3">Student Name</th>
+<th class="p-3">Class</th>
+<th class="p-3">Action</th>
+</tr>
+</thead>
+<tbody id="studentList"></tbody>
+</table>
+</div>
+</div>
+
+<!-- ATTENDANCE -->
+<div id="attendance" class="section">
+<h2 class="text-2xl font-bold mb-5">Attendance By Class</h2>
+
+<div class="bg-white p-5 rounded shadow">
+<select id="attendanceClass" onchange="renderAttendance()" class="border p-3 rounded mb-5">
+<option value="">Select Class</option>
+<option>S1A</option>
+<option>S1B</option>
+<option>S2A</option>
+<option>S2B</option>
+<option>S3A</option>
+<option>S3B</option>
+<option>L3</option>
+<option>L4</option>
+<option>L5</option>
+</select>
+
+<table class="w-full">
+<thead class="bg-green-700 text-white">
+<tr>
+<th class="p-3">Student</th>
+<th class="p-3">Attendance</th>
+</tr>
+</thead>
+<tbody id="attendanceList"></tbody>
+</table>
+</div>
+</div>
+
+<!-- REPORT -->
+<div id="report" class="section">
+<h2 class="text-2xl font-bold mb-5">Attendance Report</h2>
+
+<div class="bg-white p-5 rounded shadow">
+<select id="reportClass" onchange="renderReports()" class="border p-3 rounded mb-5">
+<option value="">Select Class</option>
+<option>S1A</option>
+<option>S1B</option>
+<option>S2A</option>
+<option>S2B</option>
+<option>S3A</option>
+<option>S3B</option>
+<option>L3</option>
+<option>L4</option>
+<option>L5</option>
+</select>
+
+<table class="w-full">
+<thead class="bg-green-700 text-white">
+<tr>
+<th class="p-3">Student</th>
+<th class="p-3">Status</th>
+</tr>
+</thead>
+<tbody id="reportList"></tbody>
+</table>
+</div>
+</div>
+
+<!-- CONTACT -->
+<div id="contact" class="section">
+<div class="bg-white p-6 rounded shadow">
+<h2 class="text-3xl font-bold text-green-900 mb-4">Contact Us</h2>
+<p><strong>School:</strong> GS MWENDO TSS</p>
+<p><strong>Email:</strong> groupescolairemwendo@gmail.com</p>
+<p><strong>Phone:</strong> +250 788 888 888</p>
+<p><strong>Location:</strong> Nyarugenge District, Kigali, Rwanda</p>
+</div>
+</div>
+
+<!-- ABOUT -->
+<div id="about" class="section">
+<div class="bg-white p-6 rounded shadow">
+<h2 class="text-3xl font-bold text-green-900 mb-4">About GS MWENDO TSS</h2>
+<p class="mb-4">
+GS MWENDO TSS is a Technical Secondary School focused on quality education,
+discipline, innovation and practical learning.
+</p>
+<p class="mb-4">
+This attendance system helps manage attendance digitally and improve reports.
+</p>
+<h3 class="font-bold">Mission</h3>
+<p>To provide modern education supported by technology.</p>
+<h3 class="font-bold mt-4">Vision</h3>
+<p>To become a leading technical school producing skilled graduates.</p>
+</div>
+</div>
+
+</div>
+</div>
+
+<script>
+let students=JSON.parse(localStorage.getItem('students'))||[];
+let attendance=JSON.parse(localStorage.getItem('attendance'))||[];
+
+const pages=['dashboard','students','attendance','report','contact','about'];
+let currentPage=0;
+
+function login(){
+const role=document.getElementById('role').value;
+const user=document.getElementById('username').value;
+const pass=document.getElementById('password').value;
+
+if(
+(role==='admin'&&user==='admin'&&pass==='1234')||
+(role==='dos'&&user==='dos'&&pass==='1234')||
+(role==='teacher'&&user==='teacher'&&pass==='1234')
+){
+document.getElementById('loginPage').classList.add('hidden');
+document.getElementById('app').classList.remove('hidden');
+document.getElementById('headerLogout').classList.remove('hidden');
+renderStudents();
+renderAttendance();
+renderReports();
+renderDashboard();
+}else{
+document.getElementById('msg').innerText='Wrong Login Details';
+}
+}
+
+function logout(){location.reload();}
+
+function show(id){
+document.querySelectorAll('.section').forEach(section=>{
+section.classList.remove('active');
+});
+document.getElementById(id).classList.add('active');
+currentPage=pages.indexOf(id);
+}
+
+function goNext(){
+currentPage=(currentPage+1)%pages.length;
+show(pages[currentPage]);
+}
+
+function goBack(){
+currentPage=(currentPage-1+pages.length)%pages.length;
+show(pages[currentPage]);
+}
+
+function addStudent(){
+const name=document.getElementById('studentName').value;
+const className=document.getElementById('studentClass').value;
+
+if(!name||!className){
+alert('Enter student name and class');
+return;
+}
+
+students.push({name,class:className});
+localStorage.setItem('students',JSON.stringify(students));
+document.getElementById('studentName').value='';
+renderStudents();
+renderDashboard();
+}
+
+function removeStudent(index){
+students.splice(index,1);
+localStorage.setItem('students',JSON.stringify(students));
+renderStudents();
+renderDashboard();
+}
+
+function renderStudents(){
+const selectedClass=document.getElementById('viewClass').value;
+const tbody=document.getElementById('studentList');
+tbody.innerHTML='';
+
+students.filter(student=>student.class===selectedClass)
+.forEach((student,index)=>{
+tbody.innerHTML+=`
+<tr class="border-b">
+<td class="p-3">${student.name}</td>
+<td class="p-3">${student.class}</td>
+<td class="p-3">
+<button onclick="removeStudent(${index})" class="bg-red-600 text-white px-3 py-1 rounded">Delete</button>
+</td>
+</tr>`;
+});
+}
+
+function renderAttendance(){
+const selectedClass=document.getElementById('attendanceClass').value;
+const tbody=document.getElementById('attendanceList');
+tbody.innerHTML='';
+
+students.filter(student=>student.class===selectedClass)
+.forEach(student=>{
+tbody.innerHTML+=`
+<tr class="border-b">
+<td class="p-3">${student.name}</td>
+<td class="p-3">
+<select onchange="markAttendance('${student.name}','${student.class}',this.value)" class="border p-2 rounded">
+<option value="">Select</option>
+<option value="Present">Present</option>
+<option value="Absent">Absent</option>
+</select>
+</td>
+</tr>`;
+});
+}
+
+function markAttendance(name,className,status){
+const existing=attendance.find(a=>a.name===name&&a.class===className);
+if(existing){existing.status=status;}
+else{attendance.push({name,class:className,status});}
+
+localStorage.setItem('attendance',JSON.stringify(attendance));
+renderReports();
+renderDashboard();
+}
+
+function renderReports(){
+const selectedClass=document.getElementById('reportClass').value;
+const tbody=document.getElementById('reportList');
+tbody.innerHTML='';
+
+attendance.filter(a=>a.class===selectedClass)
+.forEach(item=>{
+tbody.innerHTML+=`
+<tr class="border-b">
+<td class="p-3">${item.name}</td>
+<td class="p-3">${item.status}</td>
+</tr>`;
+});
+}
+
+function renderDashboard(){
+const allowedClasses=['S1A','S1B','S2A','S2B','S3A','S3B','L3','L4','L5'];
+const classes={};
+
+students.forEach(student=>{
+if(allowedClasses.includes(student.class)){
+classes[student.class]=(classes[student.class]||0)+1;
+}
+});
+
+document.getElementById('total').innerText=students.length;
+document.getElementById('totalClasses').innerText=Object.keys(classes).length;
+document.getElementById('attendanceToday').innerText=
+attendance.filter(a=>a.status==='Present').length;
+
+const table=document.getElementById('classTable');
+table.innerHTML='';
+
+allowedClasses.forEach(c=>{
+table.innerHTML+=`
+<tr>
+<td class="border p-3">${c}</td>
+<td class="border p-3">${classes[c]||0}</td>
+</tr>`;
+});
+}
+</script>
+
+</body>
+</html>
